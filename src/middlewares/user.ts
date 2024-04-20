@@ -1,17 +1,17 @@
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from  "../config"
-import adminService from "../services/adminService";
+import userService from "../services/userService";
 
 
-async function adminMiddleware(req: any, res: any, next: any) {
+async function userMiddleware(req: any, res: any, next: any) {
     const token: string = req.headers.authorization;
     const words: string[] = token.split(" ");
     const jwtToken: string = words[1];
     const decodedValue: any  = jwt.verify(jwtToken, JWT_SECRET);
 
     try {
-        if (decodedValue.adminId) {    
-            req.admin = await adminService.getAdminById(decodedValue.adminId);
+        if (decodedValue.userId) {    
+            req.username = await userService.getUserById(decodedValue.userId)
             next();
         } else {
             res.status(403).json({
@@ -26,4 +26,4 @@ async function adminMiddleware(req: any, res: any, next: any) {
     }
 }
 
-export default adminMiddleware
+export default userMiddleware;

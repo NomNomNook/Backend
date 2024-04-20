@@ -103,6 +103,7 @@ model Reservation {
   restaurant     Restaurant @relation(fields: [restaurantId], references: [id])
   restaurantId   Int
   numberOfGuests Int
+  status         Int
   startTime      DateTime
   endTime        DateTime
   orderItems     Json // JSON field to store order items

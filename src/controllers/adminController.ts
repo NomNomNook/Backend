@@ -8,8 +8,7 @@ class AdminController {
         // get the user name adn password from headers
         try {
             // return JWT token
-            const username = req.body.username
-            const password = req.body.password
+            const { username, password } = req.body
 
             const admin = await adminService.login(username, password)
             if (admin) {
@@ -35,19 +34,9 @@ class AdminController {
 
     async signup(req: Request, res: Response) {
         try {
-            const name = req.body.name;
-            const email = req.body.email;
-            const password = req.body.password;
-            const phone = req.body.phone;
-
-            if ( email && password && phone) {
-                await adminService.signup({name, email, password, phone})
-                res.status(200).json({success: true});
-            } else {
-                console.log(req.body);
-                throw new Error();
-            }
-
+            const adminData = req.body
+            await adminService.signup(adminData)
+            res.status(200).json({success: true});
         } catch (error) {
             res.status(404).json({
                 message: "Invalid Data"
@@ -105,35 +94,69 @@ class AdminController {
 
     async createRestaurant(req: Request, res: Response) {
         try {
-            const { name, registrationNumber , gstNumber, fssaiNumber, subscriptionId, adminId, isActive, isVerified, description, seatsAvailable } = req.body
+            const restaurantData = req.body
 
-            if ( name && registrationNumber && gstNumber && fssaiNumber && subscriptionId && adminId && isActive && isVerified && description && seatsAvailable ) {
-                await adminService.createRestaurant({name, registrationNumber, gstNumber, fssaiNumber, subscriptionId, adminId, isActive, isVerified, description, seatsAvailable})
-                res.status(200).json({ success: true })
-            }
+            await adminService.createRestaurant(restaurantData)
+            res.status(200).json({ success: true })
 
         } catch (error) {
+            res.status(403).json({ error })
         };
     }
 
     async updateRestaurant(req: Request, res: Response) {
-        // Implement update restaurant logic
+        try {
+            const restaurantData = req.body
+            const restaurantId = parseInt(req.params.id)
+            await adminService.updateRestaurant(restaurantId, restaurantData)
+            res.status(201).json({ message: "updated" })
+        } catch (error) {
+            res.status(403).json({ message: "error updating restaurant"})
+        }
     }
 
-    async markRestaurantOffline(req: Request, res: Response) {
-        // Implement mark restaurant offline logic
+    async markRestaurantOffline(req: Request | any , res: Response) {
+        try {
+            const restaurantId = req.params.id;
+            const adminId = req.admin.id
+            const restaurant = await adminService.markRestaurantOffline(restaurantId, adminId)
+        } catch (error) {
+            res.status(403).json({ message: "error marking restaurant offline"})
+        }
     }
 
-    async getRestaurantReservations(req: Request, res: Response) {
-        // Implement get restaurant reservations logic
+    async getRestaurantReservations(req: Request |any , res: Response) {
+        try {
+            const id = req.params.id
+            const reservations = await adminService.getRestaurantReservations(id)
+            res.status(200).json(reservations)
+        } catch (error) {
+            res.status(404).json({ error: error })
+        }
     }
 
-    async cancelRestaurantReservation(req: Request, res: Response) {
+    async cancelRestaurantReservation(req: Request | any, res: Response) {
         // Implement cancel restaurant reservation logic
+        try {
+            const id = parseInt(req.params.id)
+            const adminId = req.admin.id
+            await adminService.updateRestaurantReservation(id, { status: 3 },  adminId)
+            res.status(200).json({ message: "Restaurant reservation was canceled"})
+        } catch (error) {
+            res.status(403).json({ message: "error in updating Restaurant reservation"})
+        }
     }
 
-    async updateRestaurantReservation(req: Request, res: Response) {
-        // Implement update restaurant reservation logic
+    async updateRestaurantReservation(req: Request | any, res: Response) {
+        try {
+            const id = parseInt(req.params.id)
+            const adminId = req.admin.id
+            const updateData = req.body
+            await adminService.updateRestaurantReservation(id, updateData, adminId)
+            res.status(200).json({ message: "Restaurant reservation was updated"})
+        } catch (error) {
+            res.status(403).json({ message: "error in updating Restaurant reservation"})
+        }
     }
 }
 

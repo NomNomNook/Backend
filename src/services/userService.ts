@@ -40,40 +40,34 @@ class UserService {
 
     async getReservations(userId: number): Promise<any> {
         // Retrieve reservations for a user
-        // const reservations = await prisma.reservation.findMany({
-        //     where: {
-        //         userId,
-        //     },
-        // });
+        const reservations = await prisma.reservation.findMany({
+            where: {
+                userId,
+            },
+        });
 
-        // return reservations;
+        return reservations;
     }
 
-    async getReservationById(reservationId: number): Promise<any> {
+    async getReservationById(reservationId: number, userId: number): Promise<any> {
         // Retrieve a reservation by ID
-        // const reservation = await prisma.reservation.findUnique({
-        //     where: {
-        //         id: reservationId,
-        //     },
-        // });
+        const reservation = await prisma.reservation.findUnique({
+            where: {
+                id: reservationId,
+                userId,
+            },
+        });
 
-        // return reservation;
+        return reservation;
     }
 
-    async createReservation(reservationData: {
-        userId: number;
-        date: Date;
-        restaurantId: number;
-        persons: number;
-        order: Record<number, number>;
-        // Add more fields as needed
-    }): Promise<any> {
+    async createReservation(reservationData: any): Promise<any> {
         // Create a new reservation
-        // const newReservation = await prisma.reservation.create({
-        //     data: reservationData,
-        // });
+        const newReservation = await prisma.reservation.create({
+            data: reservationData,
+        });
 
-        // return newReservation;
+        return newReservation;
     }
 
     async updateReservation(
@@ -81,21 +75,24 @@ class UserService {
         updateData: Partial<Reservation>
     ): Promise<void> {
         // Update a reservation
-        // await prisma.reservation.update({
-        //     where: {
-        //         id: reservationId,
-        //     },
-        //     data: updateData,
-        // });
+        await prisma.reservation.update({
+            where: {
+                id: reservationId,
+            },
+            data: updateData,
+        });
     }
 
     async cancelReservation(reservationId: number): Promise<void> {
         // Cancel a reservation
-        // await prisma.reservation.delete({
-        //     where: {
-        //         id: reservationId,
-        //     },
-        // });
+        await prisma.reservation.update({
+            where: {
+                id: reservationId,
+            },
+            data: {
+                status: -1
+            }
+        });
     }
 
     async provideRating(
@@ -103,20 +100,16 @@ class UserService {
         stars: number,
         desc: string
     ): Promise<void> {
-        // Provide rating for a reservation
-        // await prisma.reservation.update({
-        //     where: {
-        //         id: reservationId,
-        //     },
-        //     data: {
-        //         rating: {
-        //             create: {
-        //                 stars,
-        //                 desc,
-        //             },
-        //         },
-        //     },
-        // });
+        await new Promise((res, rej) => res(true))
+    }
+
+    async getUserById(userId: number) {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId
+            }
+        })
+        return user
     }
 }
 

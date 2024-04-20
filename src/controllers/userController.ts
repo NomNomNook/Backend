@@ -47,10 +47,11 @@ class UserController {
         }
     };
     
-    async getReservationById (req: Request, res: Response) {
+    async getReservationById (req: Request | any, res: Response) {
         const reservationId = parseInt(req.params.id);
+        const userId = req.user.id;
         try {
-            const reservation = await userService.getReservationById(reservationId);
+            const reservation = await userService.getReservationById(reservationId, userId);
             res.status(200).json(reservation);
         } catch (error: any) {
             res.status(404).json({ error: error.message });

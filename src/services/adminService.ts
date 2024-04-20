@@ -82,23 +82,90 @@ class AdminService {
         })
     }
 
-    async markRestaurantOffline(restaurantId: number) {
-        // Implement mark restaurant offline logic
+    async markRestaurantOffline(id: number, adminId: number) {
+        await prisma.restaurant.update({
+            where: {
+                id,
+                adminId,
+            },
+            data: {
+                isActive: false,
+            }
+        })
     }
 
-    async getRestaurantReservations(restaurantId: number) {
-        // Implement get restaurant reservations logic
+    async getRestaurantReservations(restaurantId: number ) {
+        const reservations = await prisma.reservation.findMany({
+            where: {
+                restaurantId,
+            },
+            orderBy: {
+                startTime : "asc"
+            }
+        })
+        return reservations
     }
 
-    async cancelRestaurantReservation(reservationId: number) {
-        // Implement cancel restaurant reservation logic
-    }
+    // async cancelRestaurantReservation(reservationId: number, adminId: number) {
+    //     const reservation = await prisma.reservation.findUnique({
+    //         where: {
+    //             id: reservationId
+    //         }
+    //     })
+
+    //     const restaurant = await prisma.restaurant.findUnique({
+    //         where: {
+    //             id: reservation?.restaurantId
+    //         }
+    //     })
+
+    //     if (restaurant?.adminId === adminId ) {
+    //         await prisma.reservation.update({
+    //             where: {
+    //                 id: reservationId
+    //             },
+    //             data: {
+    //                 status: 3
+    //             }
+    //         })
+    //     } else {
+    //         throw new Error()
+    //     }
+    // }
 
     async updateRestaurantReservation(
         reservationId: number,
-        updateData: Partial<Reservation>
+        updateData: Partial<Reservation>,
+        adminId: number
     ) {
-        // Implement update restaurant reservation logic
+        const reservation = await prisma.reservation.findUnique({
+            where: {
+                id: reservationId
+            }
+        })
+
+        const restaurant = await prisma.restaurant.findUnique({
+            where: {
+                id: reservation?.restaurantId
+            }
+        })
+        if (restaurant?.adminId === adminId ) {
+            await prisma.reservation.update({
+                where: { id: reservationId },
+                data: updateData
+            })
+        } else {
+            throw new Error()
+        }
+    }
+
+    async getAdminById(id: number) {
+        const admin = await prisma.admin.findUnique({
+            where: {
+                id
+            }
+        })
+        return admin
     }
 }
 
