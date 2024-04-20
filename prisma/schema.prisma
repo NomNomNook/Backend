@@ -8,24 +8,121 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
-
 datasource db {
-  provider  = "postgresql"
-  url  	    = env("DATABASE_URL")
-  
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
+// Define the Users model
 model User {
-  id Int @id @default(autoincrement())
-  name String
-  email String @unique
-  password String 
-  phone String
-  birthday DateTime
-  anniversary DateTime
+  id           Int            @id @default(autoincrement())
+  name         String
+  email        String         @unique
+  password     String
+  phone        String
+  birthday     DateTime
+  anniversary  DateTime
+  Subscription Subscription[]
+  Reservation  Reservation[]
+  Lead         Lead[]
+}
+
+// Define the Plans model
+model Plan {
+  id            Int            @id @default(autoincrement())
+  type          String
+  pricePerMonth Float
+  pricePerYear  Float
+  Subscription  Subscription[]
+}
+
+// Define the Subscriptions model
+model Subscription {
+  id         Int          @id @default(autoincrement())
+  plan       Plan         @relation(fields: [planId], references: [id])
+  planId     Int
+  admin      Admin        @relation(fields: [adminId], references: [id])
+  adminId    Int
+  startDate  DateTime
+  endDate    DateTime
+  planType   String
+  Restaurant Restaurant[]
+  User       User?        @relation(fields: [userId], references: [id])
+  userId     Int?
+}
+
+// Define the Admin model
+model Admin {
+  id           Int            @id @default(autoincrement())
+  email        String         @unique
+  name         String
+  phone        String
+  password     String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Restaurant   Restaurant[]
+  Subscription Subscription[]
+}
+
+// Define the Restaurant model
+model Restaurant {
+  id                 Int           @id @default(autoincrement())
+  name               String
+  registrationNumber String
+  gstNumber          String
+  fssaiNumber        String
+  subscription       Subscription  @relation(fields: [subscriptionId], references: [id])
+  subscriptionId     Int
+  admin              Admin         @relation(fields: [adminId], references: [id])
+  adminId            Int
+  isVerified         Boolean
+  isActive           Boolean
+  description        String
+  seatsAvailable     Int
+  Item               Item[]
+  Reservation        Reservation[]
+  Lead               Lead[]
+  Campaign           Campaign[]
+}
+
+// Define the Item model
+model Item {
+  id           Int        @id @default(autoincrement())
+  description  String
+  price        Float
+  category     String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+}
+
+// Define the Reservations model
+model Reservation {
+  id             Int        @id @default(autoincrement())
+  user           User       @relation(fields: [userId], references: [id])
+  userId         Int
+  restaurant     Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId   Int
+  numberOfGuests Int
+  startTime      DateTime
+  endTime        DateTime
+  orderItems     Json // JSON field to store order items
+}
+
+// Define the Leads model
+model Lead {
+  id           Int        @id @default(autoincrement())
+  user         User       @relation(fields: [userId], references: [id])
+  userId       Int
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+  status       String
+}
+
+// Define the Campaign model
+model Campaign {
+  id           Int        @id @default(autoincrement())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurantId Int
+  type         String
+  users        Int[]
 }
