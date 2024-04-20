@@ -4,9 +4,10 @@ import adminRouter from './routes/adminRoutes';
 import userRouter from './routes/userRoutes';
 import analyticsRouter from './routes/analyticsRoutes';
 import adminMiddleware from './middlewares/admin';
+import cors from 'cors';
 
 const app = express();
-
+app.use(cors())
 
 app.use(express.json());
 
