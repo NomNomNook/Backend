@@ -4,15 +4,14 @@ import adminRouter from './routes/adminRoutes';
 import userRouter from './routes/userRoutes';
 import analyticsRouter from './routes/analyticsRoutes';
 import adminMiddleware from './middlewares/admin';
-import userMiddleware from './middlewares/user';
 
 const app = express();
 
 
 app.use(express.json());
 
-app.use('/admin', adminMiddleware, adminRouter)
-app.use('/user', userMiddleware, userRouter)
+app.use('/admin', adminRouter)
+app.use('/user', userRouter)
 app.use('/analytics', adminMiddleware, analyticsRouter)
 app.get('/', (req, res) => {
   res.send('Hello World!');
